@@ -1,4 +1,4 @@
-# template-vue-cli
+# admins
 
 > A Vue.js project
 

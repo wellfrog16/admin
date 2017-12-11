@@ -1,5 +1,5 @@
 {
-  "name": "template-vue-cli",
+  "name": "admin",
   "version": "1.0.0",
   "description": "A Vue.js project",
   "author": "wellfrog <wellfrog16@gmail.com>",
@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "axios": "^0.17.1",
+    "element-ui": "^2.0.7",
     "vue": "^2.5.2",
     "vue-router": "^3.0.1",
     "vuex": "^3.0.1"
