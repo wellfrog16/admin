@@ -1,4 +1,4 @@
-# admins
+# admin
 
 > A Vue.js project
 

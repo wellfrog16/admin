@@ -1,13 +1,9 @@
 <template>
     <div id="app">
-        <el-container>
-            <el-header>Header</el-header>
-            <el-container>
-                <el-aside width="200px">Aside</el-aside>
-                <el-main>Main</el-main>
-            </el-container>
-        </el-container>
-        <router-view/>
+		<transition name="fade"
+		            mode="out-in">
+			<router-view></router-view>
+		</transition>
     </div>
 </template>
 
@@ -18,5 +14,17 @@ export default {
 </script>
 
 <style lang="less">
+@import url('./assets/style/common.less');
+
+// 初始化
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
+    font-size: 14px;
+}
 
 </style>
