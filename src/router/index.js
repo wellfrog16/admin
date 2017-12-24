@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 import Home from '@/views/Home';
-import Database from '@/views/system/Database';
+import Database from '@/views/sys/Database';
 // import HelloWorld from '@/components/HelloWorld';
 
 Vue.use(Router);
