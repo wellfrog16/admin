@@ -3,32 +3,38 @@
         <el-header>header</el-header>
         <el-container>
             <el-aside>
-                <el-menu>
-                    <el-submenu index="1">
-                        <template slot="title">
-                            <i class="el-icon-location"></i><span>导航一</span>
-                        </template>
-                        <el-menu-item-group>
-                            <template slot="title">分组一</template>
-                            <el-menu-item index="1-1">选项1 | 内容2</el-menu-item>
-                            <el-menu-item index="1-2">选项2</el-menu-item>
-                        </el-menu-item-group>
-                        <el-menu-item-group title="分组2">
-                            <el-menu-item index="1-3">选项3</el-menu-item>
-                        </el-menu-item-group>
-                        <el-submenu index="1-4">
-                            <template slot="title">选项4</template>
-                            <el-menu-item index="1-4-1">选项1</el-menu-item>
+                <el-menu router>
+                    <template v-for="(item, index) in $router.options.routes">
+
+                        <!-- 无二级子节点 -->
+                        <el-menu-item v-if="!item.children" :index="item.path" :key="index">
+                            <i :class="item.icon"></i>
+                            <span slot="title">{{ item.name }}</span>
+                        </el-menu-item>
+
+                        <!-- 有二级子节点 -->
+                        <el-submenu v-if="item.children" :index="item.name" :key="index">
+                            <template slot="title"><i :class="item.icon"></i><span>{{ item.name }}</span></template>                            
+                            <template v-for="(item1, index1) in item.children">
+                                <!-- 无三级菜单 -->
+                                <el-menu-item v-if="!item1.children" :index="`${item.path}/${item1.path}`" :key="index1"><i :class="item1.icon"></i>{{ item1.name }}</el-menu-item>
+
+                                <!-- 有三级菜单 -->
+                                <template v-if="item1.children">
+                                    <el-submenu :index="item1.name" :key="index1">
+                                        <template slot="title"><i :class="item1.icon"></i><span>{{ item1.name }}</span></template>
+                                        <el-menu-item
+                                            v-for="(item2, index2) in item1.children"
+                                            :index="`${item.path}/${item1.path}/${item2.path}`"
+                                            :key="index2">
+                                            <i :class="item2.icon"></i>{{ item2.name }}
+                                        </el-menu-item>
+                                    </el-submenu>
+                                </template>
+                            </template>
                         </el-submenu>
-                    </el-submenu>
-                    <el-submenu index="2">
-                        <template slot="title"><i class="el-icon-setting"></i><span>系统</span></template>
-                        <el-menu-item index="2-1" @click="$router.push({ name: '数据库'})"><i class="el-icon-tickets"></i>数据库</el-menu-item>
-                    </el-submenu>
-                    <el-menu-item index="3">
-                        <i class="el-icon-menu"></i>
-                        <span slot="title">导航3</span>
-                    </el-menu-item>
+                        <!--  -->
+                    </template>
                 </el-menu>
             </el-aside>
             <el-main>

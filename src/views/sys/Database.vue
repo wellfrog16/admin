@@ -7,6 +7,14 @@
             <el-table-column prop="size" label="大小" sortable width="100"></el-table-column>
             <el-table-column prop="path" label="路径" min-width="400"></el-table-column>
         </el-table>
+        <el-pagination class="pagination"
+            background
+            layout="total, prev, pager, next" 
+            :total="total" 
+            :page-size="pagesize"
+            :current-page.sync="page"
+            @current-change="handleCurrentChange">
+        </el-pagination>
     </div>
 </template>
 
@@ -16,16 +24,23 @@ import dbApi from '../../api/sys/database/database';
 export default {
     data() {
         return {
-            list: []
+            list: [],
+            total: 0,
+            pagesize: 20,
+            page: 1
         };
     },
     created() {
-        this.loadList();
+        this.loadList(this.page, this.pagesize);
     },
     methods: {
-        async loadList() {
-            const { list } = await dbApi.list();
+        async loadList(page, pagesize) {
+            const { total, list } = await dbApi.list({page, pagesize});
+            this.total = total;
             this.list = list;
+        },
+        handleCurrentChange(page) {
+            this.loadList(page, this.pagesize);
         }
     }
 };
