@@ -1,9 +1,9 @@
 <template>
     <div class="database">
         <!-- <el-col :span="24" class="toolbar">22</el-col> -->
-        <el-table :data="list" stripe border style="width: 100%" ref="table">
-            <el-table-column prop="folder" label="数据库" width="180"></el-table-column>
+        <el-table :data="list" stripe border style="width: 100%" ref="table">            
             <el-table-column prop="name" label="表名" width="180"></el-table-column>
+            <el-table-column prop="folder" label="数据库" width="180"></el-table-column>
             <el-table-column prop="size" label="大小" sortable align="right" width="100"></el-table-column>
             <el-table-column prop="path" label="路径" min-width="400"></el-table-column>
         </el-table>
@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import dbApi from '../../../api/sys/database/database';
+import api from '../../../api/sys/database/database';
 
 export default {
     data() {
@@ -35,7 +35,7 @@ export default {
     },
     methods: {
         async loadList(page, pagesize) {
-            const { total, list } = await dbApi.list({page, pagesize});
+            const { total, list } = await api.list({page, pagesize});
             this.total = total;
             this.list = list;
         },
