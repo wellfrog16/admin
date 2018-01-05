@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { Loading, Notification } from 'element-ui';
 
 const instance = axios.create({
     // baseURL: 'http://api.dreamersky.com',
@@ -7,18 +8,30 @@ const instance = axios.create({
     timeout: 5000
 });
 
-// let loadingInstancce;
+let loadingInstancce = null;
 
-// instance.interceptors.request.use((require) => {
-//   loadingInstancce = Loading.service({
-//     fullscreen: true,
-//     text: '拼命加载中'
-//   });
-//   return require;
-// });
+instance.interceptors.request.use((require) => {
+    // 全屏遮罩
+    loadingInstancce = Loading.service({
+        fullscreen: true,
+        spinner: 'el-icon-loading',
+        text: '加载中'
+    });
+    return require;
+});
 
 instance.interceptors.response.use((response) => {
-    const { data } = response;
+    loadingInstancce.close();
+    const { data, config } = response;
+    if (data.code === 200 && (config.method === 'post' || config.method === 'put' || config.method === 'delete')) {
+        Notification.success({
+            title: '操作成功'
+        });
+    } else if (data.code !== 200) {
+        Notification.error({
+            title: data.msg
+        });
+    }
     return data;
 }, (error) => {
     return error;

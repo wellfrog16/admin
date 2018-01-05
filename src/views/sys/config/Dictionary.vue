@@ -78,7 +78,7 @@ export default {
     },
     methods: {
         async loadList(page, pagesize) {
-            this.$loading({ target: document.getElementById('qq'), fullscreen: false });
+            // this.$loading({ target: document.getElementById('qq'), fullscreen: false });
             const { total, list } = await api.list({page, pagesize});
             // t.close();
             this.total = total;
