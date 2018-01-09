@@ -3,7 +3,7 @@
 		<el-col :span="24" class="toolbar">
 			<el-form :inline="true" style="padding-bottom: 0px;">
 				<el-form-item>
-					<el-button type="primary" @click="dialogFormVisible = true">新增</el-button>
+					<el-button type="primary" @click="create()">新增</el-button>
 				</el-form-item>
 			</el-form>
 		</el-col>
@@ -12,6 +12,12 @@
             <el-table-column prop="name" label="名称" width="180"></el-table-column>
             <el-table-column prop="val" label="值" width="400"></el-table-column>
             <el-table-column prop="description" label="描述"></el-table-column>
+            <el-table-column prop="operation" label="操作" width="200">
+                <template slot-scope="scope">
+                    <el-button size="small" @click="edit(scope.row)">编辑</el-button>
+                    <el-button size="small" type="danger" @click="del(scope.row.id)">删除</el-button>
+                </template>
+            </el-table-column>
         </el-table>
 
         <el-col :span="24" class="footerbar">
@@ -25,21 +31,21 @@
             </el-pagination>
         </el-col>
 
-        <el-dialog title="新建" :visible.sync="dialogFormVisible">
-            <el-form :model="form" ref="form" :rules="rules" label-width="80px">
+        <el-dialog title="新建" :visible.sync="form.helper.visible">
+            <el-form :model="form.fields" ref="form" :rules="form.rules" label-width="80px">
                 <el-form-item label="名称" prop="name">
-                    <el-input v-model="form.name" placeholder="英文字符串"></el-input>
+                    <el-input v-model="form.fields.name" placeholder="英文字符串"></el-input>
                 </el-form-item>
                 <el-form-item label="描述" prop="description">
-                    <el-input v-model="form.description" placeholder="信息"></el-input>
+                    <el-input v-model="form.fields.description" placeholder="信息"></el-input>
                 </el-form-item>
                 <el-form-item label="值" prop="val">
-                    <el-input v-model="form.val" placeholder="用英文逗号分隔，例：日,四周,月,年"></el-input>
+                    <el-input v-model="form.fields.val" placeholder="用英文逗号分隔，例：日,四周,月,年"></el-input>
                 </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">
-                <el-button @click="dialogFormVisible = false">取 消</el-button>
-                <el-button type="primary" @click="save">保 存</el-button>
+                <el-button @click="form.helper.visible = false">取 消</el-button>
+                <el-button type="primary" @click="save()">保 存</el-button>
             </div>
         </el-dialog>
     </div>
@@ -53,23 +59,29 @@ export default {
         return {
             list: [],
             total: 0,
-            pagesize: 1,
+            pagesize: 10,
             page: 1,
-            dialogFormVisible: false,
             form: {
-                name: '',
-                description: '',
-                val: ''
-            },
-            rules: {
-                name: [
-                    { required: true, message: '请输入字典名称', trigger: 'blur' },
-                    { min: 3, max: 10, message: '长度在 3 到 10 个字符', trigger: 'blur' }
-                ],
-                val: [
-                    { required: true, message: '请输入字典值', trigger: 'blur' },
-                    { min: 1, max: 100, message: '长度在 1 到 100 个字符', trigger: 'blur' }
-                ]
+                fields: {
+                    name: '',
+                    description: '',
+                    val: ''
+                },
+                helper: {
+                    visible: false,
+                    editId: 0
+                },
+                rules: {
+                    name: [
+                        { required: true, message: '请输入字典名称', trigger: 'blur' },
+                        { min: 2, max: 10, message: '长度在 2 到 10 个字符', trigger: 'blur' },
+                        { validator: this.checkName, trigger: 'change' }
+                    ],
+                    val: [
+                        { required: true, message: '请输入字典值', trigger: 'blur' },
+                        { min: 1, max: 100, message: '长度在 1 到 100 个字符', trigger: 'blur' }
+                    ]
+                }
             }
         };
     },
@@ -78,9 +90,7 @@ export default {
     },
     methods: {
         async loadList(page, pagesize) {
-            // this.$loading({ target: document.getElementById('qq'), fullscreen: false });
             const { total, list } = await api.list({page, pagesize});
-            // t.close();
             this.total = total;
             this.list = list;
         },
@@ -88,10 +98,41 @@ export default {
             this.loadList(page, this.pagesize);
         },
         async save() {
-            await api.insert(this.form);
-            this.loadList(this.page, this.pagesize);
-            this.dialogFormVisible = false;
-            this.$refs['form'].resetFields();
+            const valid = await this.$refs['form'].validate().then((valid) => valid);
+
+            if (valid) {
+                await (this.form.helper.editId === 0 ? api.insert(this.form.fields) : api.update(this.form.helper.editId, this.form.fields));
+                this.loadList(this.page, this.pagesize);
+                this.form.helper.visible = false;
+            }
+        },
+        create() {
+            this.form.helper.visible = true;
+            this.form.helper.editId = 0;
+            this.form.fields = {};
+            this.$nextTick(() => this.$refs['form'].resetFields());
+        },
+        edit(row) {
+            this.form.helper.visible = true;
+            this.form.helper.editId = row.id;
+            this.form.fields = Object.assign({}, row);
+            this.$nextTick(() => this.$refs['form'].resetFields());
+        },
+        async del(id) {
+            const valid = await this.$confirm('确认删除该记录吗?', '提示', {
+                type: 'warning'
+            }).then(() => true).catch(() => false);
+
+            if (valid) {
+                await api.del(id);
+                this.loadList(this.page, this.pagesize);
+            }
+        },
+        // 表单验证用
+        checkName(rule, value, callback) {
+            console.log(rule);
+            console.log(value);
+            callback();
         }
     }
 };
