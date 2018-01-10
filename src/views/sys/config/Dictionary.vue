@@ -70,7 +70,7 @@ export default {
                 helper: {
                     visible: false,
                     editId: 0,
-                    timer: null    // 表单验证延迟用
+                    timer: false    // 表单验证延迟用
                 },
                 rules: {
                     name: [
@@ -130,22 +130,13 @@ export default {
             }
         },
         // 表单验证用
-        async checkName(rule, value, callback) {
-            if (!this.form.helper.timer) {
-                var x = false;
-                this.form.helper.timer = 'frog';
-                this.form.helper.timer = await setTimeout(() => { x = true; }, 1000);
-                console.log(this.form.helper.timer);
-                if (x && await api.checkName(value)) {
-                    callback(new Error('字典名称已经存在'));
-                    this.form.helper.timer = null;
-                } else {
-                    callback();
-                    this.form.helper.timer = null;
-                }
-            } else {
-                // callback();
-            }
+        checkName(rule, value, callback) {
+            clearTimeout(this.form.helper.timer);
+            this.form.helper.timer = setTimeout(() => {
+                api.checkName(value).then(docs => {
+                    if (docs) { callback(new Error('字典名称已经存在')); }
+                }).catch(() => callback());
+            }, 500);
         }
     }
 };

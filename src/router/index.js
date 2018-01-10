@@ -21,7 +21,7 @@ export default new Router({
             icon: 'el-icon-setting',
             children: [
                 {path: 'database', name: '数据库', icon: 'el-icon-tickets', component: Database},
-                {path: 'database88', name: '日志', icon: 'el-icon-document', component: Database},
+                {path: 'log', name: '日志', icon: 'el-icon-document', component: Database},
                 {
                     path: 'config',
                     name: '设置',
@@ -35,17 +35,18 @@ export default new Router({
         },
         {
             path: '',
-            name: '系统2',
+            name: 'Dreamersky',
             component: Home,
+            icon: 'el-icon-mobile-phone',
             children: [
-                {path: 'database2', name: '数据库1', component: Database},
-                {path: 'database3', name: '日志2', component: Database}
+                {path: 'blog', name: '博客', icon: 'el-icon-tickets', component: Database},
+                {path: 'photo', name: '相册', icon: 'el-icon-picture', component: Database}
             ]
-        },
-        {
-            path: '/qq',
-            name: '系统4',
-            component: Home
         }
+        // {
+        //     path: '/qq',
+        //     name: '系统4',
+        //     component: Home
+        // }
     ]
 });
