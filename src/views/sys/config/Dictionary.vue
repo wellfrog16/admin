@@ -69,13 +69,14 @@ export default {
                 },
                 helper: {
                     visible: false,
-                    editId: 0
+                    editId: 0,
+                    timer: null    // 表单验证延迟用
                 },
                 rules: {
                     name: [
                         { required: true, message: '请输入字典名称', trigger: 'blur' },
                         { min: 2, max: 10, message: '长度在 2 到 10 个字符', trigger: 'blur' },
-                        { validator: this.checkName, trigger: 'change' }
+                        { validator: this.checkName, trigger: 'blur' }
                     ],
                     val: [
                         { required: true, message: '请输入字典值', trigger: 'blur' },
@@ -98,7 +99,7 @@ export default {
             this.loadList(page, this.pagesize);
         },
         async save() {
-            const valid = await this.$refs['form'].validate().then((valid) => valid);
+            const valid = await this.$refs['form'].validate().then(valid => valid).catch(() => false);
 
             if (valid) {
                 await (this.form.helper.editId === 0 ? api.insert(this.form.fields) : api.update(this.form.helper.editId, this.form.fields));
@@ -107,16 +108,16 @@ export default {
             }
         },
         create() {
-            this.form.helper.visible = true;
             this.form.helper.editId = 0;
             this.form.fields = {};
-            this.$nextTick(() => this.$refs['form'].resetFields());
+            this.form.helper.visible = true;
+            this.$nextTick(() => this.$refs['form'].clearValidate());
         },
         edit(row) {
-            this.form.helper.visible = true;
             this.form.helper.editId = row.id;
             this.form.fields = Object.assign({}, row);
-            this.$nextTick(() => this.$refs['form'].resetFields());
+            this.form.helper.visible = true;
+            this.$nextTick(() => this.$refs['form'].clearValidate());
         },
         async del(id) {
             const valid = await this.$confirm('确认删除该记录吗?', '提示', {
@@ -129,10 +130,22 @@ export default {
             }
         },
         // 表单验证用
-        checkName(rule, value, callback) {
-            console.log(rule);
-            console.log(value);
-            callback();
+        async checkName(rule, value, callback) {
+            if (!this.form.helper.timer) {
+                var x = false;
+                this.form.helper.timer = 'frog';
+                this.form.helper.timer = await setTimeout(() => { x = true; }, 1000);
+                console.log(this.form.helper.timer);
+                if (x && await api.checkName(value)) {
+                    callback(new Error('字典名称已经存在'));
+                    this.form.helper.timer = null;
+                } else {
+                    callback();
+                    this.form.helper.timer = null;
+                }
+            } else {
+                // callback();
+            }
         }
     }
 };
