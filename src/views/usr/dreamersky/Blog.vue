@@ -39,20 +39,20 @@
             </el-pagination>
         </el-col>
 
-        <el-dialog :title="form.editId === 0 ? '新建' : '修改'" :visible.sync="form.visible">
-            <el-form :model="form.fields" ref="form" :rules="form.rules" label-width="80px">
-                <el-form-item label="名称" prop="name">
-                    <el-input v-model="form.fields.name" placeholder="英文字符串"></el-input>
+        <!-- 图文博客界面 -->
+        <el-dialog :title="form0.editId === 0 ? '新建' : '修改'" :visible.sync="form0.visible">
+            <el-form :model="form0.fields" ref="form0" :rules="form0.rules" label-width="80px">
+                <el-form-item label="标题" prop="name">
+                    <el-input v-model="form0.fields.title" placeholder="标题"></el-input>
                 </el-form-item>
-                <el-form-item label="描述" prop="description">
-                    <el-input v-model="form.fields.description" placeholder="信息"></el-input>
-                </el-form-item>
-                <el-form-item label="值" prop="val">
-                    <el-input v-model="form.fields.val" placeholder="用英文逗号分隔，例：日,四周,月,年"></el-input>
+                <el-form-item label="标签" prop="tags">
+                    <el-tag :key="tag" v-for="tag in form0.fields.tags" closable :disable-transitions="false" @close="handleClose(tag, 0)">{{tag}}</el-tag>
+                    <el-input class="input-new-tag" v-if="form0.tagInputVisible" v-model="form0.tagInputValue" ref="form0TagInput" size="small" @keyup.enter.native="handleInputConfirm(0)" @blur="handleInputConfirm(0)"></el-input>
+                    <el-button v-else class="button-new-tag" size="small" @click="showTagInput(0)">+ New Tag</el-button>
                 </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">
-                <el-button @click="form.visible = false">取 消</el-button>
+                <el-button @click="form0.visible = false">取 消</el-button>
                 <el-button type="primary" @click="save()">保 存</el-button>
             </div>
         </el-dialog>
@@ -60,6 +60,8 @@
 </template>
 
 <script>
+import { quillEditor } from 'vue-quill-editor';
+
 export default {
     data() {
         return {
@@ -68,14 +70,18 @@ export default {
             pagesize: this.$store.state.pagesize,
             page: 1,
             form0: {
-                visible: false,
+                visible: true,
                 editId: 0,
+                tagInputVisible: false,
+                tagInputValue: '',
                 fields: {
                     title: '',
                     visible: false,
+                    private: false,
                     content: '',
-                    tags: []
-                }
+                    tags: ['11', '22', '333']
+                },
+                rules: {}
             },
             form1: {
                 visible: false,
@@ -102,15 +108,78 @@ export default {
             // this.loadList(page, this.pagesize);
         },
         choiceType(value) {
-            this.$message('click on item ' + value);
+            // this.$message('click on item ' + value);
+            const handle = [
+                () => {
+                    this.form0.editId = 0;
+                    this.form0.fields = {};
+                    this.form0.visible = true;
+                    this.$nextTick(() => this.$refs['form0'].clearValidate());
+                }
+            ];
+
+            handle[value]();
         },
         create() {
             this.form.editId = 0;
             this.form.fields = {};
             this.form.visible = true;
             this.$nextTick(() => this.$refs['form'].clearValidate());
+        },
+        showTagInput(index) {
+            const handle = [
+                () => {
+                    this.form0.tagInputVisible = true;
+                    // this.$nextTick(() => {
+                    //     this.$refs.form0TagInput.$refs.input.focus();
+                    // });
+                }
+            ];
+
+            handle[index]();
+        },
+        handleInputConfirm(index) {
+            const handle = [
+                () => {
+                    let inputValue = this.form0.tagInputValue;
+                    if (inputValue) {
+                        this.form0.fields.tags.push(inputValue);
+                    }
+                    this.form0.tagInputVisible = false;
+                    this.form0.tagInputValue = '';
+                }
+            ];
+
+            handle[index]();
+        },
+        handleClose(tag, index) {
+            const handle = [
+                () => {
+                    this.form0.fields.tags.splice(this.form0.fields.tags.indexOf(tag), 1);
+                }
+            ];
+
+            handle[index]();
         }
     }
 };
 </script>
+
+<style lang="less">
+.el-tag + .el-tag {
+    margin-left: 10px;
+}
+.button-new-tag {
+    margin-left: 10px;
+    height: 32px;
+    line-height: 30px;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+.input-new-tag {
+    width: 90px;
+    margin-left: 10px;
+    vertical-align: bottom;
+}
+</style>
 
