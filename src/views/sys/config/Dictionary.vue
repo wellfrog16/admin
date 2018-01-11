@@ -1,9 +1,9 @@
 <template>
-    <div class="database" ref="database" id="qq">
+    <div class="database" ref="database">
 		<el-col :span="24" class="toolbar">
-			<el-form :inline="true" style="padding-bottom: 0px;">
+			<el-form :inline="true">
 				<el-form-item>
-					<el-button type="primary" @click="create()">新增</el-button>
+					<el-button type="primary" @click="create()">新建</el-button>
 				</el-form-item>
 			</el-form>
 		</el-col>
@@ -31,7 +31,7 @@
             </el-pagination>
         </el-col>
 
-        <el-dialog title="新建" :visible.sync="form.helper.visible">
+        <el-dialog :title="form.editId === 0 ? '新建' : '修改'" :visible.sync="form.visible">
             <el-form :model="form.fields" ref="form" :rules="form.rules" label-width="80px">
                 <el-form-item label="名称" prop="name">
                     <el-input v-model="form.fields.name" placeholder="英文字符串"></el-input>
@@ -44,7 +44,7 @@
                 </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">
-                <el-button @click="form.helper.visible = false">取 消</el-button>
+                <el-button @click="form.visible = false">取 消</el-button>
                 <el-button type="primary" @click="save()">保 存</el-button>
             </div>
         </el-dialog>
@@ -59,18 +59,16 @@ export default {
         return {
             list: [],
             total: 0,
-            pagesize: 10,
+            pagesize: this.$store.state.pagesize,
             page: 1,
             form: {
+                visible: false,
+                editId: 0,
+                timer: false,    // 表单验证延迟用
                 fields: {
                     name: '',
                     description: '',
                     val: ''
-                },
-                helper: {
-                    visible: false,
-                    editId: 0,
-                    timer: false    // 表单验证延迟用
                 },
                 rules: {
                     name: [
@@ -102,21 +100,21 @@ export default {
             const valid = await this.$refs['form'].validate().then(valid => valid).catch(() => false);
 
             if (valid) {
-                await (this.form.helper.editId === 0 ? api.insert(this.form.fields) : api.update(this.form.helper.editId, this.form.fields));
+                await (this.form.editId === 0 ? api.insert(this.form.fields) : api.update(this.form.editId, this.form.fields));
                 this.loadList(this.page, this.pagesize);
-                this.form.helper.visible = false;
+                this.form.visible = false;
             }
         },
         create() {
-            this.form.helper.editId = 0;
+            this.form.editId = 0;
             this.form.fields = {};
-            this.form.helper.visible = true;
+            this.form.visible = true;
             this.$nextTick(() => this.$refs['form'].clearValidate());
         },
         edit(row) {
-            this.form.helper.editId = row.id;
+            this.form.editId = row.id;
             this.form.fields = Object.assign({}, row);
-            this.form.helper.visible = true;
+            this.form.visible = true;
             this.$nextTick(() => this.$refs['form'].clearValidate());
         },
         async del(id) {
@@ -131,8 +129,8 @@ export default {
         },
         // 表单验证用
         checkName(rule, value, callback) {
-            clearTimeout(this.form.helper.timer);
-            this.form.helper.timer = setTimeout(() => {
+            clearTimeout(this.form.timer);
+            this.form.timer = setTimeout(() => {
                 api.checkName(value).then(docs => {
                     if (docs) { callback(new Error('字典名称已经存在')); }
                 }).catch(() => callback());

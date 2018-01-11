@@ -3,6 +3,8 @@ import Router from 'vue-router';
 import Home from '@/views/Home';
 import Database from '@/views/sys/database/Database';
 import Dictionary from '@/views/sys/config/Dictionary';
+import Blog from '@/views/usr/dreamersky/Blog';
+
 // import HelloWorld from '@/components/HelloWorld';
 
 Vue.use(Router);
@@ -22,6 +24,7 @@ export default new Router({
             children: [
                 {path: 'database', name: '数据库', icon: 'el-icon-tickets', component: Database},
                 {path: 'log', name: '日志', icon: 'el-icon-document', component: Database},
+                {path: 'file', name: '文件管理', icon: 'el-icon-document', component: Database},
                 {
                     path: 'config',
                     name: '设置',
@@ -39,7 +42,7 @@ export default new Router({
             component: Home,
             icon: 'el-icon-mobile-phone',
             children: [
-                {path: 'blog', name: '博客', icon: 'el-icon-tickets', component: Database},
+                {path: 'blog', name: '博客', icon: 'el-icon-tickets', component: Blog},
                 {path: 'photo', name: '相册', icon: 'el-icon-picture', component: Database}
             ]
         }
