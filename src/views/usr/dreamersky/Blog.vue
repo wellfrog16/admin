@@ -50,6 +50,9 @@
                     <el-input class="input-new-tag" v-if="form0.tagInputVisible" v-model="form0.tagInputValue" ref="form0TagInput" size="small" @keyup.enter.native="handleInputConfirm(0)" @blur="handleInputConfirm(0)"></el-input>
                     <el-button v-else class="button-new-tag" size="small" @click="showTagInput(0)">+ New Tag</el-button>
                 </el-form-item>
+                <el-form-item label="正文" prop="content">
+                    <editor></editor>
+                </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">
                 <el-button @click="form0.visible = false">取 消</el-button>
@@ -60,9 +63,10 @@
 </template>
 
 <script>
-import { quillEditor } from 'vue-quill-editor';
+import editor from '../../../components/Editor.vue'; // 调用编辑器
 
 export default {
+    components: {editor},
     data() {
         return {
             list: [],
@@ -112,7 +116,7 @@ export default {
             const handle = [
                 () => {
                     this.form0.editId = 0;
-                    this.form0.fields = {};
+                    // this.form0.fields = {};
                     this.form0.visible = true;
                     this.$nextTick(() => this.$refs['form0'].clearValidate());
                 }
@@ -130,9 +134,7 @@ export default {
             const handle = [
                 () => {
                     this.form0.tagInputVisible = true;
-                    // this.$nextTick(() => {
-                    //     this.$refs.form0TagInput.$refs.input.focus();
-                    // });
+                    this.$nextTick(() => this.$refs['form0TagInput'].$refs.input.focus());
                 }
             ];
 
@@ -166,11 +168,10 @@ export default {
 </script>
 
 <style lang="less">
-.el-tag + .el-tag {
+.el-tag + .el-tag, .el-tag + .button-new-tag, .el-tag + .input-new-tag {
     margin-left: 10px;
 }
 .button-new-tag {
-    margin-left: 10px;
     height: 32px;
     line-height: 30px;
     padding-top: 0;
@@ -178,7 +179,6 @@ export default {
 }
 .input-new-tag {
     width: 90px;
-    margin-left: 10px;
     vertical-align: bottom;
 }
 </style>
