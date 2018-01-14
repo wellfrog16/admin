@@ -59,6 +59,48 @@
                 <el-button type="primary" @click="save()">保 存</el-button>
             </div>
         </el-dialog>
+
+        <!-- 链接博文界面 -->
+        <el-dialog :title="form2.editId === 0 ? '新建' : '修改'" :visible.sync="form2.visible">
+            <el-form :model="form2.fields" ref="form2" :rules="form2.rules" label-width="80px">
+                <el-form-item label="标题" prop="name">
+                    <el-input v-model="form2.fields.title" placeholder="标题"></el-input>
+                </el-form-item>
+                <el-form-item label="标签" prop="tags">
+                    <el-tag :key="tag" v-for="tag in form2.fields.tags" closable :disable-transitions="false" @close="handleClose(tag, 0)">{{tag}}</el-tag>
+                    <el-input class="input-new-tag" v-if="form2.tagInputVisible" v-model="form2.tagInputValue" ref="form2TagInput" size="small" @keyup.enter.native="handleInputConfirm(2)" @blur="handleInputConfirm(2)"></el-input>
+                    <el-button v-else class="button-new-tag" size="small" @click="showTagInput(2)">+ New Tag</el-button>
+                </el-form-item>
+                <el-form-item label="链接地址" prop="content">
+                    <el-input placeholder="请输入链接地址" v-model="form2.fields.url">
+                        <template slot="prepend">Http://</template>
+                    </el-input>
+                </el-form-item>
+                <el-form-item label="描述" prop="content">
+                    <el-input
+                    type="textarea"
+                    :rows="2"
+                    placeholder="请输入内容"
+                    v-model="textarea">
+                    </el-input>
+                </el-form-item>
+                <el-form-item label="图片" prop="content">
+                    <el-upload
+                    class="avatar-uploader"
+                    action="https://jsonplaceholder.typicode.com/posts/"
+                    :show-file-list="false"
+                    :on-success="handleAvatarSuccess"
+                    :before-upload="beforeAvatarUpload">
+                    <img v-if="imageUrl" :src="imageUrl" class="avatar">
+                    <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                    </el-upload>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="form2.visible = false">取 消</el-button>
+                <el-button type="primary" @click="save()">保 存</el-button>
+            </div>
+        </el-dialog>
     </div>
 </template>
 
@@ -74,7 +116,7 @@ export default {
             pagesize: this.$store.state.pagesize,
             page: 1,
             form0: {
-                visible: true,
+                visible: false,
                 editId: 0,
                 tagInputVisible: false,
                 tagInputValue: '',
@@ -97,12 +139,16 @@ export default {
                 }
             },
             form2: {
-                visible: false,
+                visible: true,
                 editId: 0,
                 fields: {
-                    name: '',
+                    title: '',
+                    visible: false,
+                    private: false,
                     description: '',
-                    val: ''
+                    url: '',
+                    poster: '',
+                    tags: ['11', '22', '333']
                 }
             }
         };
@@ -119,6 +165,13 @@ export default {
                     // this.form0.fields = {};
                     this.form0.visible = true;
                     this.$nextTick(() => this.$refs['form0'].clearValidate());
+                },
+                () => {},
+                () => {
+                    this.form2.editId = 0;
+                    // this.form0.fields = {};
+                    this.form2.visible = true;
+                    this.$nextTick(() => this.$refs['form2'].clearValidate());
                 }
             ];
 
@@ -180,6 +233,37 @@ export default {
 .input-new-tag {
     width: 90px;
     vertical-align: bottom;
+}
+
+.avatar-uploader {
+    height: 80px;
+
+    .el-upload {
+        border: 1px dashed #d9d9d9;
+        border-radius: 6px;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .el-upload:hover {
+        border-color: #409EFF;
+    }
+
+    .avatar-uploader-icon {
+        font-size: 28px;
+        color: #8c939d;
+        width: 78px;
+        height: 78px;
+        line-height: 78px;
+        text-align: center;
+    }
+}
+
+.avatar {
+    width: 78px;
+    height: 78px;
+    display: block;
 }
 </style>
 
