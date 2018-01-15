@@ -81,17 +81,18 @@
                     type="textarea"
                     :rows="2"
                     placeholder="请输入内容"
-                    v-model="textarea">
+                    v-model="form2.fields.url">
                     </el-input>
                 </el-form-item>
                 <el-form-item label="图片" prop="content">
                     <el-upload
                     class="avatar-uploader"
-                    action="https://jsonplaceholder.typicode.com/posts/"
+                    name="avatar"
+                    :action="uploadUrl"
                     :show-file-list="false"
                     :on-success="handleAvatarSuccess"
                     :before-upload="beforeAvatarUpload">
-                    <img v-if="imageUrl" :src="imageUrl" class="avatar">
+                    <img v-if="form2.fields.url" :src="form2.fields.url" class="avatar">
                     <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                     </el-upload>
                 </el-form-item>
@@ -113,6 +114,7 @@ export default {
         return {
             list: [],
             total: 0,
+            uploadUrl: this.$store.state.uploadUrl,
             pagesize: this.$store.state.pagesize,
             page: 1,
             form0: {
@@ -215,7 +217,9 @@ export default {
             ];
 
             handle[index]();
-        }
+        },
+        beforeAvatarUpload() {},
+        handleAvatarSuccess() {}
     }
 };
 </script>
