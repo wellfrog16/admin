@@ -40,7 +40,7 @@
         </el-col>
 
         <!-- 图文博客界面 -->
-        <el-dialog :title="form0.editId === 0 ? '新建' : '修改'" :visible.sync="form0.visible">
+        <el-dialog :title="form0.editId === 0 ? '新建' : '修改'" :visible.sync="form0.visible" :close-on-click-modal="false">
             <el-form :model="form0.fields" ref="form0" :rules="form0.rules" label-width="80px">
                 <el-form-item label="标题" prop="name">
                     <el-input v-model="form0.fields.title" placeholder="标题"></el-input>
@@ -51,7 +51,7 @@
                     <el-button v-else class="button-new-tag" size="small" @click="showTagInput(0)">+ New Tag</el-button>
                 </el-form-item>
                 <el-form-item label="正文" prop="content">
-                    <editor></editor>
+                    <Editor></Editor>
                 </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">
@@ -106,10 +106,10 @@
 </template>
 
 <script>
-import editor from '../../../components/Editor.vue'; // 调用编辑器
+import Editor from '../../../components/Editor.vue'; // 调用编辑器
 
 export default {
-    components: {editor},
+    components: {Editor},
     data() {
         return {
             list: [],
@@ -118,7 +118,7 @@ export default {
             pagesize: this.$store.state.pagesize,
             page: 1,
             form0: {
-                visible: false,
+                visible: true,
                 editId: 0,
                 tagInputVisible: false,
                 tagInputValue: '',
@@ -141,7 +141,7 @@ export default {
                 }
             },
             form2: {
-                visible: true,
+                visible: false,
                 editId: 0,
                 fields: {
                     title: '',
