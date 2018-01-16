@@ -31,6 +31,7 @@ export default new Router({
                     component: Root,
                     icon: 'el-icon-setting',
                     children: [
+                        {path: 'dictionary', name: '常规', icon: 'el-icon-document', component: Dictionary},
                         {path: 'dictionary', name: '字典', icon: 'el-icon-document', component: Dictionary}
                     ]
                 }

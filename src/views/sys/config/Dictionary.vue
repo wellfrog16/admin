@@ -53,13 +53,14 @@
 
 <script>
 import api from '../../../api/sys/config/dictionary';
+import config from '../../../config';
 
 export default {
     data() {
         return {
             list: [],
             total: 0,
-            pagesize: this.$store.state.pagesize,
+            pagesize: config.pagesize,
             page: 1,
             form: {
                 visible: false,

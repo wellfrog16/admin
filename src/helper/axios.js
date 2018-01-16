@@ -1,9 +1,9 @@
 import axios from 'axios';
 import { Loading, Notification } from 'element-ui';
+import config from '../config';
 
 const instance = axios.create({
-    // baseURL: 'http://api.dreamersky.com',
-    baseURL: 'http://localhost:8001',
+    baseURL: config.serverApi,
     withCredentials: true,
     timeout: 5000
 });

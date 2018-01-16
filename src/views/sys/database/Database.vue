@@ -20,13 +20,14 @@
 
 <script>
 import api from '../../../api/sys/database/database';
+import config from '../../../config';
 
 export default {
     data() {
         return {
             list: [],
             total: 0,
-            pagesize: 20,
+            pagesize: config.pagesize,
             page: 1
         };
     },

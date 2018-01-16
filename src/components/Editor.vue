@@ -1,17 +1,17 @@
 <template>
     <div class="vue-quill-editor">
         <!--富文本编辑器组件-->
-         <quill-editor class="test"
-            ref="myQuillEditor"
+         <quill-editor
+            v-model="content"
             :options="editorOptions"
-            @change="onEditorChange($event)"
-            @ready="onEditorReady($event)"
         ></quill-editor>
     </div>
 </template>
 <script>
 import {quillEditor} from 'vue-quill-editor'; // 调用编辑器
-import {editorOptions} from '../helper/editor-config';
+import config from '../config';
+import {quillRedefine} from '../helper/editor-config2';
+// import {editorOptions} from '../helper/editor-config';
 
 import 'quill/dist/quill.core.css';
 import 'quill/dist/quill.snow.css';
@@ -19,27 +19,45 @@ import 'quill/dist/quill.bubble.css';
 
 export default {
     components: {quillEditor},
+    props: {
+        value: {
+            type: String,
+            default: ''
+        }
+    },
     data() {
         return {
-            quillUpdateImg: false, // 根据图片上传状态来确定是否显示loading动画，刚开始是false,不显示
-            serverUrl: this.$store.state.uploadUrl,  // 这里写你要上传的图片服务器地址
-            // header: {token: sessionStorage.token},  // 有的图片服务器要求请求头需要有token之类的参数，写在这里
-            detailContent: '', // 富文本内容
-            editorOptions: editorOptions
-            // editorOption: { // 富文本编辑器配置
-            //     theme: 'bubble'
-            // }
+            editorOptions: null
         };
     },
-    methods: {
-        // 上传图片前
-        beforeUpload(res, file) {},
-        // 上传图片成功
-        uploadSuccess(res, file) {},
-        // 上传图片失败
-        uploadError(res, file) {},
-        onEditorChange() {},
-        onEditorReady() {}
+    created() {
+        let self = this;
+        this.editorOptions = quillRedefine({
+            // theme: 'bubble',
+            // 图片上传的设置
+            uploadConfig: {
+                action: config.uploadUrl,  // 必填参数 图片上传地址
+                // 必选参数  res是一个函数，函数接收的response为上传成功时服务器返回的数据
+                // 你必须把返回的数据中所包含的图片地址 return 回去
+                res: (res) => {
+                    return config.serverImg + '/' + res.data.path + '/' + res.data.filename;
+                },
+                name: config.uploadName,  // 图片上传参数名
+                success() {
+                    self.$notify.success({message: '上传成功'});
+                }
+            }
+        });
+    },
+    computed: {
+        content: {
+            get: function get() {
+                return this.value;
+            },
+            set: function set(value) {
+                this.$emit('input', value);
+            }
+        }
     }
 };
 </script>

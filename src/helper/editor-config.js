@@ -1,11 +1,12 @@
+import config from '../config';
 // vue-quill-editor-config.js
 
 // 图片上传参数配置
 const uploadConfig = {
-    action: 'http://localhost:8001/service/file/upload',  // 必填参数 图片上传地址
+    action: config.uploadUrl,  // 必填参数 图片上传地址
     methods: 'POST',  // 必填参数 图片上传方式
     token: null, // sessionStorage.token,  // 可选参数 如果需要token验证，假设你的token有存放在sessionStorage
-    name: 'avatar',  // 必填参数 文件的参数名
+    name: config.uploadName,  // 必填参数 文件的参数名
     size: 500,  // 可选参数   图片大小，单位为Kb, 1M = 1024Kb
     accept: 'image/png, image/gif, image/jpeg, image/bmp, image/x-icon'  // 可选 可上传的图片格式
 };
@@ -65,9 +66,10 @@ const handlers = {
                 xhr.onload = function(e) {
                     if (xhr.status === 200) {
                         var res = JSON.parse(xhr.responseText);
-                        console.log(res);
+                        // console.log(res);
                         let length = self.quill.getSelection(true).index;
-                        self.quill.insertEmbed(length, 'image', res.info);
+                        // self.quill.insertEmbed(length, 'image', res.info);
+                        self.quill.insertEmbed(length, 'image', config.serverImg + '/' + res.data.path + '/' + res.data.filename);
                         self.quill.setSelection(length + 1);
                     } else {
                         console.log(xhr.status);
@@ -77,14 +79,14 @@ const handlers = {
                 // 开始上传数据
                 xhr.upload.onloadstart = function(e) {
                     fileInput.value = '';
-                    console.log('开始上传');
+                    // console.log('开始上传');
                 };
                 // 当发生网络异常的时候会触发，如果上传数据的过程还未结束
                 xhr.upload.onerror = function(e) {
                 };
                 // 上传数据完成（成功或者失败）时会触发
                 xhr.upload.onloadend = function(e) {
-                    console.log('上传结束');
+                    // console.log('上传结束');
                 };
                 xhr.send(formData);
             });

@@ -2,7 +2,7 @@
     <div class="blog" ref="blog">
 		<el-col :span="24" class="toolbar">
 			<el-form :inline="true">
-                <el-dropdown trigger="click" @command="choiceType">
+                <el-dropdown trigger="click" :show-timeout="0" :hide-timeout="0" @command="choiceType">
                     <el-button type="primary">
                         新建<i class="el-icon-arrow-down el-icon--right"></i>
                     </el-button>
@@ -51,7 +51,7 @@
                     <el-button v-else class="button-new-tag" size="small" @click="showTagInput(0)">+ New Tag</el-button>
                 </el-form-item>
                 <el-form-item label="正文" prop="content">
-                    <Editor></Editor>
+                    <Editor v-model="form0.fields.content"></Editor>
                 </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">
@@ -60,8 +60,39 @@
             </div>
         </el-dialog>
 
+        <!-- 图片博客界面 -->
+        <el-dialog :title="form1.editId === 0 ? '新建' : '修改'" :visible.sync="form1.visible" :close-on-click-modal="false">
+            <el-form :model="form1.fields" ref="form1" :rules="form1.rules" label-width="80px">
+                <el-form-item label="标题" prop="name">
+                    <el-input v-model="form1.fields.title" placeholder="标题"></el-input>
+                </el-form-item>
+                <el-form-item label="标签" prop="tags">
+                    <el-tag :key="tag" v-for="tag in form1.fields.tags" closable :disable-transitions="false" @close="handleClose(tag, 0)">{{tag}}</el-tag>
+                    <el-input class="input-new-tag" v-if="form1.tagInputVisible" v-model="form1.tagInputValue" ref="form1TagInput" size="small" @keyup.enter.native="handleInputConfirm(0)" @blur="handleInputConfirm(0)"></el-input>
+                    <el-button v-else class="button-new-tag" size="small" @click="showTagInput(0)">+ New Tag</el-button>
+                </el-form-item>
+                <el-form-item label="正文" prop="content">
+                    <el-upload
+                    name="avatar"
+                    :action="uploadUrl"
+                    list-type="picture-card"
+                    :on-preview="handlePictureCardPreview"
+                    :on-remove="handleRemove">
+                    <i class="el-icon-plus"></i>
+                    </el-upload>
+                    <el-dialog :visible.sync="dialogVisible" size="tiny">
+                        <img width="100%" :src="dialogImageUrl" alt="">
+                    </el-dialog>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="form1.visible = false">取 消</el-button>
+                <el-button type="primary" @click="save()">保 存</el-button>
+            </div>
+        </el-dialog>
+
         <!-- 链接博文界面 -->
-        <el-dialog :title="form2.editId === 0 ? '新建' : '修改'" :visible.sync="form2.visible">
+        <el-dialog :title="form2.editId === 0 ? '新建' : '修改'" :visible.sync="form2.visible" :close-on-click-modal="false">
             <el-form :model="form2.fields" ref="form2" :rules="form2.rules" label-width="80px">
                 <el-form-item label="标题" prop="name">
                     <el-input v-model="form2.fields.title" placeholder="标题"></el-input>
@@ -116,9 +147,12 @@ export default {
             total: 0,
             uploadUrl: this.$store.state.uploadUrl,
             pagesize: this.$store.state.pagesize,
+            dialogImageUrl: '',
+            dialogVisible: false,
+            content: '1122',
             page: 1,
             form0: {
-                visible: true,
+                visible: false,
                 editId: 0,
                 tagInputVisible: false,
                 tagInputValue: '',
@@ -132,7 +166,7 @@ export default {
                 rules: {}
             },
             form1: {
-                visible: false,
+                visible: true,
                 editId: 0,
                 fields: {
                     name: '',
@@ -156,6 +190,13 @@ export default {
         };
     },
     methods: {
+        handleRemove(file, fileList) {
+            console.log(file, fileList);
+        },
+        handlePictureCardPreview(file) {
+            this.dialogImageUrl = file.url;
+            this.dialogVisible = true;
+        },
         handleCurrentChange(page) {
             // this.loadList(page, this.pagesize);
         },
@@ -176,6 +217,8 @@ export default {
                     this.$nextTick(() => this.$refs['form2'].clearValidate());
                 }
             ];
+
+            console.log(11);
 
             handle[value]();
         },
@@ -219,7 +262,10 @@ export default {
             handle[index]();
         },
         beforeAvatarUpload() {},
-        handleAvatarSuccess() {}
+        handleAvatarSuccess() {},
+        save() {
+            console.log(this.form0.fields.content);
+        }
     }
 };
 </script>
