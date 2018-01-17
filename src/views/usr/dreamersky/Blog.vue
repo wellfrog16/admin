@@ -2,7 +2,7 @@
     <div class="blog" ref="blog">
 		<el-col :span="24" class="toolbar">
 			<el-form :inline="true">
-                <el-dropdown trigger="click" :show-timeout="0" :hide-timeout="0" @command="choiceType">
+                <el-dropdown trigger="click" :show-timeout="0" :hide-timeout="0" @command="create">
                     <el-button type="primary">
                         新建<i class="el-icon-arrow-down el-icon--right"></i>
                     </el-button>
@@ -42,13 +42,13 @@
         <!-- 图文博客界面 -->
         <el-dialog :title="form0.editId === 0 ? '新建' : '修改'" :visible.sync="form0.visible" :close-on-click-modal="false">
             <el-form :model="form0.fields" ref="form0" :rules="form0.rules" label-width="80px">
-                <el-form-item label="标题" prop="name">
+                <el-form-item label="标题" prop="title">
                     <el-input v-model="form0.fields.title" placeholder="标题"></el-input>
                 </el-form-item>
                 <el-form-item label="标签" prop="tags">
-                    <el-tag :key="tag" v-for="tag in form0.fields.tags" closable :disable-transitions="false" @close="handleClose(tag, 0)">{{tag}}</el-tag>
-                    <el-input class="input-new-tag" v-if="form0.tagInputVisible" v-model="form0.tagInputValue" ref="form0TagInput" size="small" @keyup.enter.native="handleInputConfirm(0)" @blur="handleInputConfirm(0)"></el-input>
-                    <el-button v-else class="button-new-tag" size="small" @click="showTagInput(0)">+ New Tag</el-button>
+                    <el-tag :key="tag" v-for="tag in form0.fields.tags" closable @close="closeTag(tag, 0)">{{tag}}</el-tag>
+                    <el-input class="input-new-tag" v-if="tagVisible" v-model="tagValue" ref="form0TagInput" size="small" @keyup.enter.native="saveTag(0)" @blur="saveTag(0)"></el-input>
+                    <el-button v-else class="button-new-tag" size="small" @click="showTag(0)">+ New Tag</el-button>
                 </el-form-item>
                 <el-form-item label="正文" prop="content">
                     <Editor v-model="form0.fields.content"></Editor>
@@ -63,26 +63,44 @@
         <!-- 图片博客界面 -->
         <el-dialog :title="form1.editId === 0 ? '新建' : '修改'" :visible.sync="form1.visible" :close-on-click-modal="false">
             <el-form :model="form1.fields" ref="form1" :rules="form1.rules" label-width="80px">
-                <el-form-item label="标题" prop="name">
+                <el-form-item label="标题" prop="title">
                     <el-input v-model="form1.fields.title" placeholder="标题"></el-input>
                 </el-form-item>
                 <el-form-item label="标签" prop="tags">
-                    <el-tag :key="tag" v-for="tag in form1.fields.tags" closable :disable-transitions="false" @close="handleClose(tag, 0)">{{tag}}</el-tag>
-                    <el-input class="input-new-tag" v-if="form1.tagInputVisible" v-model="form1.tagInputValue" ref="form1TagInput" size="small" @keyup.enter.native="handleInputConfirm(0)" @blur="handleInputConfirm(0)"></el-input>
-                    <el-button v-else class="button-new-tag" size="small" @click="showTagInput(0)">+ New Tag</el-button>
+                    <el-tag :key="tag" v-for="tag in form1.fields.tags" closable @close="closeTag(tag, 1)">{{tag}}</el-tag>
+                    <el-input class="input-new-tag" v-if="tagVisible" v-model="tagValue" ref="form1TagInput" size="small" @keyup.enter.native="saveTag(1)" @blur="saveTag(1)"></el-input>
+                    <el-button v-else class="button-new-tag" size="small" @click="showTag(1)">+ New Tag</el-button>
                 </el-form-item>
-                <el-form-item label="正文" prop="content">
+                <el-form-item label="上传">
                     <el-upload
-                    name="avatar"
-                    :action="uploadUrl"
-                    list-type="picture-card"
-                    :on-preview="handlePictureCardPreview"
-                    :on-remove="handleRemove">
-                    <i class="el-icon-plus"></i>
+                        name="avatar"
+                        :action="uploadUrl"
+                        :show-file-list="false"
+                        :on-success="addPhoto">
+                        <el-button size="small" type="primary">点击上传</el-button>
+                        <span class="tips">只能上传jpg/png文件</span>
                     </el-upload>
-                    <el-dialog :visible.sync="dialogVisible" size="tiny">
-                        <img width="100%" :src="dialogImageUrl" alt="">
-                    </el-dialog>
+                </el-form-item>
+                <el-form-item label="照片">
+                    <el-row>
+                    <el-col :span="11" style="margin-bottom:24px;" v-for="(item, index) in 14" :key="index" :offset="index % 2 > 0 ? 1 : 0">
+                        <el-card :body-style="{ padding: '0px' }">
+                        <!-- <img src="~examples/assets/images/hamburger.png" class="image"> -->
+                        <div class="photo" id="photo"></div>
+                        <div style="padding: 14px;">
+                            <span>好吃的汉堡</span>
+                            <div class="bottom right clearfix">
+                            <!-- <time class="time">{{ currentDate }}</time> -->
+                                <el-button-group>
+                                    <el-button type="primary" size="mini" icon="el-icon-arrow-left"></el-button>
+                                    <el-button type="primary" size="mini" icon="el-icon-delete"></el-button>
+                                    <el-button type="primary" size="mini" icon="el-icon-arrow-right"></el-button>
+                                </el-button-group>
+                            </div>
+                        </div>
+                        </el-card>
+                    </el-col>
+                    </el-row>
                 </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">
@@ -94,28 +112,28 @@
         <!-- 链接博文界面 -->
         <el-dialog :title="form2.editId === 0 ? '新建' : '修改'" :visible.sync="form2.visible" :close-on-click-modal="false">
             <el-form :model="form2.fields" ref="form2" :rules="form2.rules" label-width="80px">
-                <el-form-item label="标题" prop="name">
+                <el-form-item label="标题" prop="title">
                     <el-input v-model="form2.fields.title" placeholder="标题"></el-input>
                 </el-form-item>
                 <el-form-item label="标签" prop="tags">
-                    <el-tag :key="tag" v-for="tag in form2.fields.tags" closable :disable-transitions="false" @close="handleClose(tag, 0)">{{tag}}</el-tag>
-                    <el-input class="input-new-tag" v-if="form2.tagInputVisible" v-model="form2.tagInputValue" ref="form2TagInput" size="small" @keyup.enter.native="handleInputConfirm(2)" @blur="handleInputConfirm(2)"></el-input>
-                    <el-button v-else class="button-new-tag" size="small" @click="showTagInput(2)">+ New Tag</el-button>
+                    <el-tag :key="tag" v-for="tag in form2.fields.tags" closable @close="closeTag(tag, 0)">{{tag}}</el-tag>
+                    <el-input class="input-new-tag" v-if="tagVisible" v-model="tagValue" ref="form2TagInput" size="small" @keyup.enter.native="saveTag(2)" @blur="saveTag(2)"></el-input>
+                    <el-button v-else class="button-new-tag" size="small" @click="showTag(2)">+ New Tag</el-button>
                 </el-form-item>
-                <el-form-item label="链接地址" prop="content">
+                <el-form-item label="链接地址" prop="url">
                     <el-input placeholder="请输入链接地址" v-model="form2.fields.url">
                         <template slot="prepend">Http://</template>
                     </el-input>
                 </el-form-item>
-                <el-form-item label="描述" prop="content">
+                <el-form-item label="描述" prop="description">
                     <el-input
                     type="textarea"
                     :rows="2"
                     placeholder="请输入内容"
-                    v-model="form2.fields.url">
+                    v-model="form2.fields.description">
                     </el-input>
                 </el-form-item>
-                <el-form-item label="图片" prop="content">
+                <el-form-item label="图片" prop="poster">
                     <el-upload
                     class="avatar-uploader"
                     name="avatar"
@@ -123,7 +141,7 @@
                     :show-file-list="false"
                     :on-success="handleAvatarSuccess"
                     :before-upload="beforeAvatarUpload">
-                    <img v-if="form2.fields.url" :src="form2.fields.url" class="avatar">
+                    <img v-if="form2.fields.poster" :src="form2.fields.poster" class="avatar">
                     <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                     </el-upload>
                 </el-form-item>
@@ -138,6 +156,7 @@
 
 <script>
 import Editor from '../../../components/Editor.vue'; // 调用编辑器
+import config from '../../../config';
 
 export default {
     components: {Editor},
@@ -145,33 +164,46 @@ export default {
         return {
             list: [],
             total: 0,
-            uploadUrl: this.$store.state.uploadUrl,
-            pagesize: this.$store.state.pagesize,
-            dialogImageUrl: '',
-            dialogVisible: false,
-            content: '1122',
+            uploadUrl: config.uploadUrl,        // 上传地址
+            uploadName: config.uploadName,      // 上传input的name
+            pagesize: config.pagesize,          // 分页数
             page: 1,
+            tagVisible: false,                  // 标签
+            tagValue: '',                       // 标签值
+            currentForm: null,                  // 当前form
             form0: {
                 visible: false,
                 editId: 0,
-                tagInputVisible: false,
-                tagInputValue: '',
                 fields: {
+                    type: 'normal',
                     title: '',
                     visible: false,
                     private: false,
                     content: '',
-                    tags: ['11', '22', '333']
+                    tags: []
                 },
-                rules: {}
+                rules: {
+                    title: [
+                        { required: true, message: '请输入微博标题', trigger: 'blur' },
+                        { min: 1, max: 50, message: '长度在 1 到 50 个字符', trigger: 'blur' }
+                    ]
+                }
             },
             form1: {
-                visible: true,
+                visible: false,
                 editId: 0,
                 fields: {
-                    name: '',
-                    description: '',
-                    val: ''
+                    title: '',
+                    visible: false,
+                    private: false,
+                    tags: [],
+                    photos: []
+                },
+                rules: {
+                    title: [
+                        { required: true, message: '请输入微博标题', trigger: 'blur' },
+                        { min: 1, max: 50, message: '长度在 1 到 50 个字符', trigger: 'blur' }
+                    ]
                 }
             },
             form2: {
@@ -183,8 +215,17 @@ export default {
                     private: false,
                     description: '',
                     url: '',
-                    poster: '',
-                    tags: ['11', '22', '333']
+                    poster: '',         // 封面
+                    tags: []
+                },
+                rules: {
+                    title: [
+                        { required: true, message: '请输入微博标题', trigger: 'blur' },
+                        { min: 1, max: 50, message: '长度在 1 到 50 个字符', trigger: 'blur' }
+                    ],
+                    url: [
+                        { required: true, message: '请输入链接地址', trigger: 'blur' }
+                    ]
                 }
             }
         };
@@ -200,120 +241,128 @@ export default {
         handleCurrentChange(page) {
             // this.loadList(page, this.pagesize);
         },
-        choiceType(value) {
-            // this.$message('click on item ' + value);
+        create(value) {
             const handle = [
                 () => {
                     this.form0.editId = 0;
                     // this.form0.fields = {};
                     this.form0.visible = true;
                     this.$nextTick(() => this.$refs['form0'].clearValidate());
+                    this.currentForm = this.form0;
                 },
-                () => {},
+                () => {
+                    this.form1.editId = 0;
+                    // this.form0.fields = {};
+                    this.form1.visible = true;
+                    this.$nextTick(() => this.$refs['form1'].clearValidate());
+                    this.currentForm = this.form1;
+                },
                 () => {
                     this.form2.editId = 0;
                     // this.form0.fields = {};
                     this.form2.visible = true;
                     this.$nextTick(() => this.$refs['form2'].clearValidate());
+                    this.currentForm = this.form2;
                 }
             ];
-
-            console.log(11);
 
             handle[value]();
         },
-        create() {
-            this.form.editId = 0;
-            this.form.fields = {};
-            this.form.visible = true;
-            this.$nextTick(() => this.$refs['form'].clearValidate());
+        showTag(index) {
+            this.tagVisible = true;
+            this.$nextTick(() => this.$refs[`form${index}TagInput`].$refs.input.focus());
         },
-        showTagInput(index) {
-            const handle = [
-                () => {
-                    this.form0.tagInputVisible = true;
-                    this.$nextTick(() => this.$refs['form0TagInput'].$refs.input.focus());
-                }
-            ];
-
-            handle[index]();
+        saveTag(index) {
+            if (this.tagValue && this.currentForm.fields.tags.indexOf(this.tagValue) === -1) {
+                this.currentForm.fields.tags.push(this.tagValue);
+            }
+            this.tagVisible = false;
+            this.tagValue = '';
         },
-        handleInputConfirm(index) {
-            const handle = [
-                () => {
-                    let inputValue = this.form0.tagInputValue;
-                    if (inputValue) {
-                        this.form0.fields.tags.push(inputValue);
-                    }
-                    this.form0.tagInputVisible = false;
-                    this.form0.tagInputValue = '';
-                }
-            ];
-
-            handle[index]();
+        closeTag(tag, index) {
+            this.currentForm.fields.tags.splice(this.currentForm.fields.tags.indexOf(tag), 1);
         },
-        handleClose(tag, index) {
-            const handle = [
-                () => {
-                    this.form0.fields.tags.splice(this.form0.fields.tags.indexOf(tag), 1);
-                }
-            ];
-
-            handle[index]();
+        addPhoto(response, file, fileList) {
+            const path = response.data.path + '/' + response.data.filename;
+            this.form1.fields.photos.push({
+                title: '',
+                path
+            });
         },
         beforeAvatarUpload() {},
         handleAvatarSuccess() {},
         save() {
-            console.log(this.form0.fields.content);
+            console.log(document.getElementById('photo'));
+            console.log(document.getElementById('photo').offsetWidth);
+            console.log(this.currentForm.fields);
         }
     }
 };
 </script>
 
 <style lang="less">
-.el-tag + .el-tag, .el-tag + .button-new-tag, .el-tag + .input-new-tag {
-    margin-left: 10px;
-}
-.button-new-tag {
-    height: 32px;
-    line-height: 30px;
-    padding-top: 0;
-    padding-bottom: 0;
-}
-.input-new-tag {
-    width: 90px;
-    vertical-align: bottom;
-}
-
-.avatar-uploader {
-    height: 80px;
-
-    .el-upload {
-        border: 1px dashed #d9d9d9;
-        border-radius: 6px;
-        cursor: pointer;
-        position: relative;
-        overflow: hidden;
+.blog {
+    .tips {
+        font-size: 12px;
+        margin-left: 10px;
     }
 
-    .el-upload:hover {
-        border-color: #409EFF;
+    .photo {
+        width: 100%;
+        height: 300px;
+        background-color: grey;
     }
 
-    .avatar-uploader-icon {
-        font-size: 28px;
-        color: #8c939d;
+    .el-tag + .el-tag, .el-tag + .button-new-tag, .el-tag + .input-new-tag {
+        margin-left: 10px;
+    }
+    .button-new-tag {
+        height: 32px;
+        line-height: 30px;
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+    .input-new-tag {
+        width: 90px;
+        vertical-align: bottom;
+        top: 1px;
+
+        input {
+            font-size: 12px;
+        }
+    }
+
+    .avatar-uploader {
+        height: 80px;
+
+        .el-upload {
+            border: 1px dashed #d9d9d9;
+            border-radius: 6px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .el-upload:hover {
+            border-color: #409EFF;
+        }
+
+        .avatar-uploader-icon {
+            font-size: 28px;
+            color: #8c939d;
+            width: 78px;
+            height: 78px;
+            line-height: 78px;
+            text-align: center;
+        }
+    }
+
+    .avatar {
         width: 78px;
         height: 78px;
-        line-height: 78px;
-        text-align: center;
+        display: block;
     }
 }
 
-.avatar {
-    width: 78px;
-    height: 78px;
-    display: block;
-}
 </style>
 
