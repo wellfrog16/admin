@@ -74,27 +74,27 @@
                 <el-form-item label="上传">
                     <el-upload
                         name="avatar"
+                        multiple
                         :action="uploadUrl"
                         :show-file-list="false"
                         :on-success="addPhoto">
                         <el-button size="small" type="primary">点击上传</el-button>
-                        <span class="tips">只能上传jpg/png文件</span>
+                        <span class="tips">只能上传jpg/png文件，建议16:9</span>
                     </el-upload>
                 </el-form-item>
                 <el-form-item label="照片">
                     <el-row>
-                    <el-col :span="11" style="margin-bottom:24px;" v-for="(item, index) in 14" :key="index" :offset="index % 2 > 0 ? 1 : 0">
+                    <el-col :span="11" style="margin-bottom:24px;" v-for="(item, index) in form1.fields.photos" :key="index" :offset="index % 2 > 0 ? 1 : 0">
                         <el-card :body-style="{ padding: '0px' }">
-                        <!-- <img src="~examples/assets/images/hamburger.png" class="image"> -->
-                        <div class="photo" id="photo"></div>
-                        <div style="padding: 14px;">
-                            <span>好吃的汉堡</span>
+                        <div class="photo"><img :src="`${imgServer}/${item.path}`"></div>
+                        <div class="info">
+                            <span><el-input size="mini" @change="changePhotoDes" @focus="photoIndex = index" placeholder="请输入照片描述" :value="item.description"></el-input></span>
                             <div class="bottom right clearfix">
                             <!-- <time class="time">{{ currentDate }}</time> -->
                                 <el-button-group>
-                                    <el-button type="primary" size="mini" icon="el-icon-arrow-left"></el-button>
-                                    <el-button type="primary" size="mini" icon="el-icon-delete"></el-button>
-                                    <el-button type="primary" size="mini" icon="el-icon-arrow-right"></el-button>
+                                    <el-button type="primary" size="mini" icon="el-icon-arrow-left" @click="movePhoto(index, -1)"></el-button>
+                                    <el-button type="primary" size="mini" icon="el-icon-delete" @click="deletePhoto(item)"></el-button>
+                                    <el-button type="primary" size="mini" icon="el-icon-arrow-right" @click="movePhoto(index, 1)"></el-button>
                                 </el-button-group>
                             </div>
                         </div>
@@ -139,9 +139,8 @@
                     name="avatar"
                     :action="uploadUrl"
                     :show-file-list="false"
-                    :on-success="handleAvatarSuccess"
-                    :before-upload="beforeAvatarUpload">
-                    <img v-if="form2.fields.poster" :src="form2.fields.poster" class="avatar">
+                    :on-success="addPoster">
+                    <img v-if="form2.fields.poster" :src="`${imgServer}/${form2.fields.poster}`" class="avatar">
                     <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                     </el-upload>
                 </el-form-item>
@@ -162,22 +161,21 @@ export default {
     components: {Editor},
     data() {
         return {
+            ...config,
             list: [],
             total: 0,
-            uploadUrl: config.uploadUrl,        // 上传地址
-            uploadName: config.uploadName,      // 上传input的name
-            pagesize: config.pagesize,          // 分页数
             page: 1,
             tagVisible: false,                  // 标签
             tagValue: '',                       // 标签值
             currentForm: null,                  // 当前form
+            photoIndex: 0,                      // 图片微博当前激活的图片index
             form0: {
                 visible: false,
                 editId: 0,
                 fields: {
                     type: 'normal',
                     title: '',
-                    visible: false,
+                    release: false,
                     private: false,
                     content: '',
                     tags: []
@@ -194,7 +192,7 @@ export default {
                 editId: 0,
                 fields: {
                     title: '',
-                    visible: false,
+                    release: false,
                     private: false,
                     tags: [],
                     photos: []
@@ -211,7 +209,7 @@ export default {
                 editId: 0,
                 fields: {
                     title: '',
-                    visible: false,
+                    release: false,
                     private: false,
                     description: '',
                     url: '',
@@ -285,15 +283,31 @@ export default {
         addPhoto(response, file, fileList) {
             const path = response.data.path + '/' + response.data.filename;
             this.form1.fields.photos.push({
-                title: '',
+                description: '',
                 path
             });
         },
-        beforeAvatarUpload() {},
-        handleAvatarSuccess() {},
+        changePhotoDes(value) {
+            this.form1.fields.photos[this.photoIndex].description = value;
+        },
+        deletePhoto(item) {
+            this.form1.fields.photos.splice(this.form1.fields.photos.indexOf(item), 1);
+        },
+        movePhoto(index, x) {
+            if ((x === -1 && index > 0) || (x === 1 && index < this.form1.fields.photos.length - 1)) {
+                const temp = this.form1.fields.photos[index];
+                this.form1.fields.photos[index] = this.form1.fields.photos[index + x];
+                this.form1.fields.photos[index + x] = temp;
+                this.form1.fields.photos.splice(0, 0);  // 刷新
+            }
+        },
+        addPoster(response) {
+            const path = response.data.path + '/' + response.data.filename;
+            this.form2.fields.poster = path;
+        },
         save() {
-            console.log(document.getElementById('photo'));
-            console.log(document.getElementById('photo').offsetWidth);
+            // console.log(document.getElementById('photo'));
+            // console.log(document.getElementById('photo').offsetWidth);
             console.log(this.currentForm.fields);
         }
     }
@@ -307,10 +321,22 @@ export default {
         margin-left: 10px;
     }
 
-    .photo {
-        width: 100%;
-        height: 300px;
-        background-color: grey;
+    .el-card {
+        .photo {
+            font-size: 0;
+            line-height: 0;
+            img {
+                width: 100%;
+            }
+        }
+
+        .info {
+            padding: 10px;
+
+            .right {
+                text-align: right;
+            }
+        }
     }
 
     .el-tag + .el-tag, .el-tag + .button-new-tag, .el-tag + .input-new-tag {

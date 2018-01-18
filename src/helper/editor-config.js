@@ -69,7 +69,7 @@ const handlers = {
                         // console.log(res);
                         let length = self.quill.getSelection(true).index;
                         // self.quill.insertEmbed(length, 'image', res.info);
-                        self.quill.insertEmbed(length, 'image', config.serverImg + '/' + res.data.path + '/' + res.data.filename);
+                        self.quill.insertEmbed(length, 'image', config.imgServer + '/' + res.data.path + '/' + res.data.filename);
                         self.quill.setSelection(length + 1);
                     } else {
                         console.log(xhr.status);

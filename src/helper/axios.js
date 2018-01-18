@@ -3,7 +3,7 @@ import { Loading, Notification } from 'element-ui';
 import config from '../config';
 
 const instance = axios.create({
-    baseURL: config.serverApi,
+    baseURL: config.apiServer,
     withCredentials: true,
     timeout: 5000
 });

@@ -7,14 +7,17 @@
             <el-table-column prop="size" label="大小" sortable align="right" width="100"></el-table-column>
             <el-table-column prop="path" label="路径" min-width="400"></el-table-column>
         </el-table>
-        <el-pagination class="pagination"
-            background
-            layout="total, prev, pager, next" 
-            :total="total" 
-            :page-size="pagesize"
-            :current-page.sync="page"
-            @current-change="handleCurrentChange">
-        </el-pagination>
+
+        <el-col :span="24" class="footerbar">
+            <el-pagination class="pagination"
+                background
+                layout="total, prev, pager, next" 
+                :total="total" 
+                :page-size="pagesize"
+                :current-page.sync="page"
+                @current-change="handleCurrentChange">
+            </el-pagination>
+        </el-col>
     </div>
 </template>
 
