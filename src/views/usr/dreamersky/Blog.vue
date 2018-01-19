@@ -16,10 +16,29 @@
 		</el-col>
 
         <el-table :data="list" stripe border style="width: 100%" ref="table">
-            <el-table-column prop="name" label="状态" width="50"></el-table-column>
-            <el-table-column prop="name" label="类型" width="50"></el-table-column>
-            <el-table-column prop="name" label="标题"></el-table-column>
-            <el-table-column prop="val" label="日期" width="100"></el-table-column>
+            <el-table-column label="发布" width="80" align="center">
+                <template slot-scope="scope">
+                    <el-switch
+                        v-model="scope.row.release" @change="changeRelease(scope.row.id)">
+                    </el-switch>
+                </template>
+            </el-table-column>
+            <el-table-column label="标题">
+                <template slot-scope="scope">
+                    <i class="el-icon-document" v-if="scope.row.type === 'normal'"></i>
+                    <i class="el-icon-picture" v-if="scope.row.type === 'photo'"></i>
+                    <i class="el-icon-share" v-if="scope.row.type === 'link'"></i>
+                    {{scope.row.title}}
+                </template>
+            </el-table-column>
+            <el-table-column label="公开" width="80" align="center">
+                <template slot-scope="scope">
+                    <el-switch
+                        v-model="scope.row.private" @change="changePrivate(scope.row.id)">
+                    </el-switch>
+                </template>
+            </el-table-column>
+            <el-table-column prop="date" label="日期" width="100"></el-table-column>            
             <el-table-column prop="operation" label="操作" width="200">
                 <template slot-scope="scope">
                     <el-button size="small" @click="edit(scope.row)">编辑</el-button>
@@ -56,7 +75,7 @@
             </el-form>
             <div slot="footer" class="dialog-footer">
                 <el-button @click="form0.visible = false">取 消</el-button>
-                <el-button type="primary" @click="save()">保 存</el-button>
+                <el-button type="primary" @click="save(0)">保 存</el-button>
             </div>
         </el-dialog>
 
@@ -84,7 +103,7 @@
                 </el-form-item>
                 <el-form-item label="照片">
                     <el-row>
-                    <el-col :span="11" style="margin-bottom:24px;" v-for="(item, index) in form1.fields.photos" :key="index" :offset="index % 2 > 0 ? 1 : 0">
+                    <el-col :span="10" style="margin-bottom:24px;" v-for="(item, index) in form1.fields.photos" :key="index" :offset="index % 2 > 0 ? 1 : 0">
                         <el-card :body-style="{ padding: '0px' }">
                         <div class="photo"><img :src="`${imgServer}/${item.path}`"></div>
                         <div class="info">
@@ -105,7 +124,7 @@
             </el-form>
             <div slot="footer" class="dialog-footer">
                 <el-button @click="form1.visible = false">取 消</el-button>
-                <el-button type="primary" @click="save()">保 存</el-button>
+                <el-button type="primary" @click="save(1)">保 存</el-button>
             </div>
         </el-dialog>
 
@@ -147,7 +166,7 @@
             </el-form>
             <div slot="footer" class="dialog-footer">
                 <el-button @click="form2.visible = false">取 消</el-button>
-                <el-button type="primary" @click="save()">保 存</el-button>
+                <el-button type="primary" @click="save(2)">保 存</el-button>
             </div>
         </el-dialog>
     </div>
@@ -155,6 +174,7 @@
 
 <script>
 import Editor from '../../../components/Editor.vue'; // 调用编辑器
+import api from '../../../api/usr/dreamersky/blog';
 import config from '../../../config';
 
 export default {
@@ -191,6 +211,7 @@ export default {
                 visible: false,
                 editId: 0,
                 fields: {
+                    type: 'photo',
                     title: '',
                     release: false,
                     private: false,
@@ -208,6 +229,7 @@ export default {
                 visible: false,
                 editId: 0,
                 fields: {
+                    type: 'link',
                     title: '',
                     release: false,
                     private: false,
@@ -228,10 +250,17 @@ export default {
             }
         };
     },
+    created() {
+        this.loadList(this.page, this.pagesize);
+    },
     methods: {
-        handleRemove(file, fileList) {
-            console.log(file, fileList);
+        async loadList(page, pagesize) {
+            const { total, list } = await api.list({page, pagesize});
+            this.total = total;
+            this.list = list;
         },
+        changeRelease(index) { api.changeRelease(index); },
+        changePrivate(index) { api.changePrivate(index); },
         handlePictureCardPreview(file) {
             this.dialogImageUrl = file.url;
             this.dialogVisible = true;
@@ -305,7 +334,14 @@ export default {
             const path = response.data.path + '/' + response.data.filename;
             this.form2.fields.poster = path;
         },
-        save() {
+        async save(index) {
+            const valid = await this.$refs[`form${index}`].validate().then(valid => valid).catch(() => false);
+
+            if (valid) {
+                await (this.currentForm.editId === 0 ? api.insert(this.currentForm.fields) : api.update(this.currentForm.editId, this.currentForm.fields));
+                // this.loadList(this.page, this.pagesize);
+                this.currentForm.visible = false;
+            }
             // console.log(document.getElementById('photo'));
             // console.log(document.getElementById('photo').offsetWidth);
             console.log(this.currentForm.fields);
