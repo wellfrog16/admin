@@ -19,7 +19,7 @@
             <el-table-column label="发布" width="80" align="center">
                 <template slot-scope="scope">
                     <el-switch
-                        v-model="scope.row.release" @change="changeRelease(scope.row.id)">
+                        v-model="scope.row.publish" @change="changePublish(scope.row.id)">
                     </el-switch>
                 </template>
             </el-table-column>
@@ -195,7 +195,7 @@ export default {
                 fields: {
                     type: 'normal',
                     title: '',
-                    release: false,
+                    publish: false,
                     private: false,
                     content: '',
                     tags: []
@@ -213,7 +213,7 @@ export default {
                 fields: {
                     type: 'photo',
                     title: '',
-                    release: false,
+                    publish: false,
                     private: false,
                     tags: [],
                     photos: []
@@ -231,7 +231,7 @@ export default {
                 fields: {
                     type: 'link',
                     title: '',
-                    release: false,
+                    publish: false,
                     private: false,
                     description: '',
                     url: '',
@@ -259,7 +259,7 @@ export default {
             this.total = total;
             this.list = list;
         },
-        changeRelease(index) { api.changeRelease(index); },
+        changePublish(index) { api.changePublish(index); },
         changePrivate(index) { api.changePrivate(index); },
         handlePictureCardPreview(file) {
             this.dialogImageUrl = file.url;
