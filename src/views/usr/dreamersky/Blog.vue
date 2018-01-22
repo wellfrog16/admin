@@ -19,7 +19,7 @@
             <el-table-column label="发布" width="80" align="center">
                 <template slot-scope="scope">
                     <el-switch
-                        v-model="scope.row.publish" @change="changePublish(scope.row.id)">
+                        v-model="scope.row.publish" @change="changePublish(scope.row.id)" :disabled="scope.row.publish">
                     </el-switch>
                 </template>
             </el-table-column>
@@ -31,7 +31,7 @@
                     {{scope.row.title}}
                 </template>
             </el-table-column>
-            <el-table-column label="公开" width="80" align="center">
+            <el-table-column label="私人" width="80" align="center">
                 <template slot-scope="scope">
                     <el-switch
                         v-model="scope.row.private" @change="changePrivate(scope.row.id)">
@@ -344,7 +344,8 @@ export default {
             }
             // console.log(document.getElementById('photo'));
             // console.log(document.getElementById('photo').offsetWidth);
-            console.log(this.currentForm.fields);
+            // console.log(this.currentForm.fields);
+            this.loadList(this.page, this.pagesize);
         }
     }
 };
