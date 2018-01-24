@@ -346,6 +346,16 @@ export default {
             // console.log(document.getElementById('photo').offsetWidth);
             // console.log(this.currentForm.fields);
             this.loadList(this.page, this.pagesize);
+        },
+        async del(id) {
+            const valid = await this.$confirm('确认删除该记录吗?', '提示', {
+                type: 'warning'
+            }).then(() => true).catch(() => false);
+
+            if (valid) {
+                await api.del(id);
+                this.loadList(this.page, this.pagesize);
+            }
         }
     }
 };
