@@ -9,9 +9,9 @@
 </template>
 <script>
 import {quillEditor} from 'vue-quill-editor'; // 调用编辑器
-import config from '../config';
-import {quillRedefine} from '../helper/editor-config2';
-// import {editorOptions} from '../helper/editor-config';
+import config from '@/config';
+import {quillRedefine} from '@/helper/editor-config2';
+// import {editorOptions} from '@/helper/editor-config';
 
 import 'quill/dist/quill.core.css';
 import 'quill/dist/quill.snow.css';

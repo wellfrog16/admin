@@ -1,4 +1,4 @@
-import config from '../config';
+import config from '@/config';
 // vue-quill-editor-config.js
 
 // 图片上传参数配置

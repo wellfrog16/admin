@@ -52,8 +52,8 @@
 </template>
 
 <script>
-import api from '../../../api/sys/config/dictionary';
-import config from '../../../config';
+import api from '@/api/sys/config/dictionary';
+import config from '@/config';
 
 export default {
     data() {

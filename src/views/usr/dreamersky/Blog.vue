@@ -173,9 +173,9 @@
 </template>
 
 <script>
-import Editor from '../../../components/Editor.vue'; // 调用编辑器
-import api from '../../../api/usr/dreamersky/blog';
-import config from '../../../config';
+import Editor from '@/components/Editor.vue'; // 调用编辑器
+import api from '@/api/usr/dreamersky/blog';
+import config from '@/config';
 
 const fields = {
     title: '',

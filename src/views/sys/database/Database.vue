@@ -22,8 +22,8 @@
 </template>
 
 <script>
-import api from '../../../api/sys/database/database';
-import config from '../../../config';
+import api from '@/api/sys/database/database';
+import config from '@/config';
 
 export default {
     data() {
