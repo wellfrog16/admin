@@ -177,6 +177,30 @@ import Editor from '../../../components/Editor.vue'; // 调用编辑器
 import api from '../../../api/usr/dreamersky/blog';
 import config from '../../../config';
 
+const fields = {
+    title: '',
+    publish: false,
+    private: false,
+    tags: []
+};
+
+const fields0 = Object.assign({}, fields, {
+    type: 'normal',
+    content: ''
+});
+
+const fields1 = Object.assign({}, fields, {
+    type: 'photo',
+    photos: []
+});
+
+const fields2 = Object.assign({}, fields, {
+    type: 'link',
+    description: '',
+    url: '',
+    poster: ''         // 封面
+});
+
 export default {
     components: {Editor},
     data() {
@@ -192,14 +216,7 @@ export default {
             form0: {
                 visible: false,
                 editId: 0,
-                fields: {
-                    type: 'normal',
-                    title: '',
-                    publish: false,
-                    private: false,
-                    content: '',
-                    tags: []
-                },
+                fields: fields0,
                 rules: {
                     title: [
                         { required: true, message: '请输入微博标题', trigger: 'blur' },
@@ -210,14 +227,7 @@ export default {
             form1: {
                 visible: false,
                 editId: 0,
-                fields: {
-                    type: 'photo',
-                    title: '',
-                    publish: false,
-                    private: false,
-                    tags: [],
-                    photos: []
-                },
+                fields: fields1,
                 rules: {
                     title: [
                         { required: true, message: '请输入微博标题', trigger: 'blur' },
@@ -228,16 +238,7 @@ export default {
             form2: {
                 visible: false,
                 editId: 0,
-                fields: {
-                    type: 'link',
-                    title: '',
-                    publish: false,
-                    private: false,
-                    description: '',
-                    url: '',
-                    poster: '',         // 封面
-                    tags: []
-                },
+                fields: fields2,
                 rules: {
                     title: [
                         { required: true, message: '请输入微博标题', trigger: 'blur' },
@@ -272,21 +273,21 @@ export default {
             const handle = [
                 () => {
                     this.form0.editId = 0;
-                    // this.form0.fields = {};
+                    this.form0.fields = fields0;
                     this.form0.visible = true;
                     this.$nextTick(() => this.$refs['form0'].clearValidate());
                     this.currentForm = this.form0;
                 },
                 () => {
                     this.form1.editId = 0;
-                    // this.form0.fields = {};
+                    this.form1.fields = fields1;
                     this.form1.visible = true;
                     this.$nextTick(() => this.$refs['form1'].clearValidate());
                     this.currentForm = this.form1;
                 },
                 () => {
                     this.form2.editId = 0;
-                    // this.form0.fields = {};
+                    this.form2.fields = fields2;
                     this.form2.visible = true;
                     this.$nextTick(() => this.$refs['form2'].clearValidate());
                     this.currentForm = this.form2;
@@ -294,6 +295,32 @@ export default {
             ];
 
             handle[value]();
+        },
+        async edit(row) {
+            const data = await api.detail(row.id);
+            if (row.type === 'normal') {
+                this.form0.editId = row.id;
+                this.form0.fields = data;
+                this.form0.visible = true;
+                this.$nextTick(() => this.$refs['form0'].clearValidate());
+                this.currentForm = this.form0;
+            }
+
+            if (row.type === 'photo') {
+                this.form1.editId = row.id;
+                this.form1.fields = data;
+                this.form1.visible = true;
+                this.$nextTick(() => this.$refs['form1'].clearValidate());
+                this.currentForm = this.form1;
+            }
+
+            if (row.type === 'link') {
+                this.form2.editId = row.id;
+                this.form2.fields = data;
+                this.form2.visible = true;
+                this.$nextTick(() => this.$refs['form2'].clearValidate());
+                this.currentForm = this.form2;
+            }
         },
         showTag(index) {
             this.tagVisible = true;
@@ -339,13 +366,13 @@ export default {
 
             if (valid) {
                 await (this.currentForm.editId === 0 ? api.insert(this.currentForm.fields) : api.update(this.currentForm.editId, this.currentForm.fields));
-                // this.loadList(this.page, this.pagesize);
+                this.loadList(this.page, this.pagesize);
                 this.currentForm.visible = false;
             }
             // console.log(document.getElementById('photo'));
             // console.log(document.getElementById('photo').offsetWidth);
             // console.log(this.currentForm.fields);
-            this.loadList(this.page, this.pagesize);
+            // this.loadList(this.page, this.pagesize);
         },
         async del(id) {
             const valid = await this.$confirm('确认删除该记录吗?', '提示', {
