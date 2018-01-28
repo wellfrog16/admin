@@ -260,14 +260,17 @@ export default {
             this.total = total;
             this.list = list;
         },
-        changePublish(index) { api.changePublish(index); },
+        async changePublish(index) {
+            await api.changePublish(index);
+            this.loadList(this.page, this.pagesize);
+        },
         changePrivate(index) { api.changePrivate(index); },
         handlePictureCardPreview(file) {
             this.dialogImageUrl = file.url;
             this.dialogVisible = true;
         },
         handleCurrentChange(page) {
-            // this.loadList(page, this.pagesize);
+            this.loadList(page, this.pagesize);
         },
         create(value) {
             const handle = [
