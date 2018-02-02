@@ -278,21 +278,21 @@ export default {
                     this.form0.editId = 0;
                     this.form0.fields = fields0;
                     this.form0.visible = true;
-                    this.$nextTick(() => this.$refs['form0'].clearValidate());
+                    this.$nextTick(() => this.$refs['form0'].resetFields());
                     this.currentForm = this.form0;
                 },
                 () => {
                     this.form1.editId = 0;
                     this.form1.fields = fields1;
                     this.form1.visible = true;
-                    this.$nextTick(() => this.$refs['form1'].clearValidate());
+                    this.$nextTick(() => this.$refs['form1'].resetFields());
                     this.currentForm = this.form1;
                 },
                 () => {
                     this.form2.editId = 0;
                     this.form2.fields = fields2;
                     this.form2.visible = true;
-                    this.$nextTick(() => this.$refs['form2'].clearValidate());
+                    this.$nextTick(() => this.$refs['form2'].resetFields());
                     this.currentForm = this.form2;
                 }
             ];
