@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import Router from 'vue-router';
+import Login from '@/views/Login';
 import Home from '@/views/Home';
 import Database from '@/views/sys/database/Database';
 import Dictionary from '@/views/sys/config/Dictionary';
@@ -46,11 +47,12 @@ export default new Router({
                 {path: 'blog', name: '博客', icon: 'el-icon-tickets', component: Blog},
                 {path: 'photo', name: '相册', icon: 'el-icon-picture', component: Database}
             ]
+        },
+        {
+            path: '/login',
+            name: '登陆',
+            hidden: true,
+            component: Login
         }
-        // {
-        //     path: '/qq',
-        //     name: '系统4',
-        //     component: Home
-        // }
     ]
 });

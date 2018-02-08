@@ -103,22 +103,22 @@
                 </el-form-item>
                 <el-form-item label="照片">
                     <el-row>
-                    <el-col :span="10" style="margin-bottom:24px;" v-for="(item, index) in form1.fields.photos" :key="index" :offset="index % 2 > 0 ? 1 : 0">
-                        <el-card :body-style="{ padding: '0px' }">
-                        <div class="photo"><img :src="`${imgServer}/${item.path}`"></div>
-                        <div class="info">
-                            <span><el-input size="mini" @change="changePhotoDes" @focus="photoIndex = index" placeholder="请输入照片描述" :value="item.description"></el-input></span>
-                            <div class="bottom right clearfix">
-                            <!-- <time class="time">{{ currentDate }}</time> -->
-                                <el-button-group>
-                                    <el-button type="primary" size="mini" icon="el-icon-arrow-left" @click="movePhoto(index, -1)"></el-button>
-                                    <el-button type="primary" size="mini" icon="el-icon-delete" @click="deletePhoto(item)"></el-button>
-                                    <el-button type="primary" size="mini" icon="el-icon-arrow-right" @click="movePhoto(index, 1)"></el-button>
-                                </el-button-group>
+                        <el-col :span="10" style="margin-bottom:24px;" v-for="(item, index) in form1.fields.photos" :key="index" :offset="index % 2 > 0 ? 1 : 0">
+                            <el-card :body-style="{ padding: '0px' }">
+                            <div class="photo"><img :src="`${imgServer}/${item.path}`"></div>
+                            <div class="info">
+                                <span><el-input size="mini" @change="changePhotoDes" @focus="photoIndex = index" placeholder="请输入照片描述" :value="item.description"></el-input></span>
+                                <div class="bottom right clearfix">
+                                <!-- <time class="time">{{ currentDate }}</time> -->
+                                    <el-button-group>
+                                        <el-button type="primary" size="mini" icon="el-icon-arrow-left" @click="movePhoto(index, -1)"></el-button>
+                                        <el-button type="primary" size="mini" icon="el-icon-delete" @click="deletePhoto(item)"></el-button>
+                                        <el-button type="primary" size="mini" icon="el-icon-arrow-right" @click="movePhoto(index, 1)"></el-button>
+                                    </el-button-group>
+                                </div>
                             </div>
-                        </div>
-                        </el-card>
-                    </el-col>
+                            </el-card>
+                        </el-col>
                     </el-row>
                 </el-form-item>
             </el-form>
